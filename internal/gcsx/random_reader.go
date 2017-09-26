@@ -17,7 +17,6 @@ package gcsx
 import (
 	"fmt"
 	"io"
-	"math"
 
 	"github.com/jacobsa/gcloud/gcs"
 	"golang.org/x/net/context"
@@ -52,7 +51,8 @@ type RandomReader interface {
 // given bucket.
 func NewRandomReader(
 	o *gcs.Object,
-	bucket gcs.Bucket) (rr RandomReader, err error) {
+	bucket gcs.Bucket,
+	chunkLimit int64) (rr RandomReader, err error) {
 	rr = &randomReader{
 		object: o,
 		bucket: bucket,
@@ -66,6 +66,7 @@ func NewRandomReader(
 type randomReader struct {
 	object *gcs.Object
 	bucket gcs.Bucket
+	chunkLimit int64
 
 	// If non-nil, an in-flight read request and a function for cancelling it.
 	//
@@ -254,11 +255,12 @@ func (rr *randomReader) startRead(
 	}
 
 	// If this read starts where the previous one left off, we take this as a
-	// sign that the user is reading sequentially within the object. It's
-	// probably worth it to just request the entire rest of the object, and let
-	// them sip from the fire house with each call to ReadAt.
+	// sign that the user is reading sequentially within the object. If the
+	// user did not request a maximum chunk size, it's probably worth it to
+	// just request the entire rest of the object, and let them sip from the
+	// fire house with each call to ReadAt.
 	if start == rr.limit {
-		actualSize = math.MaxInt64
+		actualSize = rr.chunkLimit
 	}
 
 	// Clip to the end of the object.

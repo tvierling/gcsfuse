@@ -19,6 +19,7 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
+	"math"
 	"strings"
 	"testing"
 	"testing/iotest"
@@ -155,7 +156,7 @@ func (t *RandomReaderTest) SetUp(ti *TestInfo) {
 	t.bucket = gcs.NewMockBucket(ti.MockController, "bucket")
 
 	// Set up the reader.
-	rr, err := NewRandomReader(t.object, t.bucket)
+	rr, err := NewRandomReader(t.object, t.bucket, math.MaxInt64)
 	AssertEq(nil, err)
 	t.rr.wrapped = rr.(*randomReader)
 }

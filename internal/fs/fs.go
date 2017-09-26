@@ -79,6 +79,9 @@ type ServerConfig struct {
 	// before the expiration, we may fail to find it.
 	DirTypeCacheTTL time.Duration
 
+	// The maximum size of a sequential-hinted read continuation request, in bytes.
+	ChunkLimit int64
+
 	// The UID and GID that owns all inodes in the file system.
 	Uid uint32
 	Gid uint32
@@ -145,6 +148,7 @@ func NewServer(cfg *ServerConfig) (server fuse.Server, err error) {
 		implicitDirs:           cfg.ImplicitDirectories,
 		inodeAttributeCacheTTL: cfg.InodeAttributeCacheTTL,
 		dirTypeCacheTTL:        cfg.DirTypeCacheTTL,
+		chunkLimit:		cfg.ChunkLimit,
 		uid:                    cfg.Uid,
 		gid:                    cfg.Gid,
 		fileMode:               cfg.FilePerms,
@@ -240,6 +244,7 @@ type fileSystem struct {
 	implicitDirs           bool
 	inodeAttributeCacheTTL time.Duration
 	dirTypeCacheTTL        time.Duration
+	chunkLimit             int64
 
 	// The user and group owning everything in the file system.
 	uid uint32
@@ -564,6 +569,7 @@ func (fs *fileSystem) mintInode(name string, o *gcs.Object) (in inode.Inode) {
 			fs.bucket,
 			fs.syncer,
 			fs.tempDir,
+			fs.chunkLimit,
 			fs.mtimeClock)
 	}
 

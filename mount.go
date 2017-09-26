@@ -17,6 +17,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"math"
 	"os"
 
 	"golang.org/x/net/context"
@@ -53,6 +54,11 @@ func mountWithConn(
 				err.Error())
 			return
 		}
+	}
+
+	chunkLimit := flags.MaxChunkKB * 1024
+	if (chunkLimit == 0) {
+		chunkLimit = math.MaxInt64
 	}
 
 	// Find the current process's UID and GID. If it was invoked as root and the
@@ -103,6 +109,7 @@ be interacting with the file system.
 		ImplicitDirectories:    flags.ImplicitDirs,
 		InodeAttributeCacheTTL: flags.StatCacheTTL,
 		DirTypeCacheTTL:        flags.TypeCacheTTL,
+		ChunkLimit:		chunkLimit,
 		Uid:                    uid,
 		Gid:                    gid,
 		FilePerms:              os.FileMode(flags.FileMode),

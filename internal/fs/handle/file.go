@@ -162,7 +162,7 @@ func (fh *FileHandle) tryEnsureReader() (err error) {
 	}
 
 	// Attempt to create an appropriate reader.
-	rr, err := gcsx.NewRandomReader(fh.inode.Source(), fh.bucket)
+	rr, err := gcsx.NewRandomReader(fh.inode.Source(), fh.bucket, fh.inode.ChunkLimit)
 	if err != nil {
 		err = fmt.Errorf("NewRandomReader: %v", err)
 		return

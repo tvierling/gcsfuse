@@ -135,6 +135,13 @@ func newApp() (app *cli.App) {
 					"(use -1 for no limit)",
 			},
 
+			cli.IntFlag {
+				Name:  "max-chunk-kb",
+				Value: 0,
+				Usage: "Maximum size of a GCS read request in sequential fetch mode " +
+					"(use 0 for no limit)",
+			},
+
 			/////////////////////////
 			// Tuning
 			/////////////////////////
@@ -204,6 +211,7 @@ type flagStorage struct {
 	KeyFile                            string
 	EgressBandwidthLimitBytesPerSecond float64
 	OpRateLimitHz                      float64
+	MaxChunkKB                         int64
 
 	// Tuning
 	StatCacheTTL time.Duration
@@ -236,6 +244,7 @@ func populateFlags(c *cli.Context) (flags *flagStorage) {
 		KeyFile: c.String("key-file"),
 		EgressBandwidthLimitBytesPerSecond: c.Float64("limit-bytes-per-sec"),
 		OpRateLimitHz:                      c.Float64("limit-ops-per-sec"),
+		MaxChunkKB:                         int64(c.Int("max-chunk-kb")),
 
 		// Tuning,
 		StatCacheTTL: c.Duration("stat-cache-ttl"),

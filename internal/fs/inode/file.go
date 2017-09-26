@@ -44,10 +44,11 @@ type FileInode struct {
 	// Constant data
 	/////////////////////////
 
-	id      fuseops.InodeID
-	name    string
-	attrs   fuseops.InodeAttributes
-	tempDir string
+	id         fuseops.InodeID
+	name       string
+	attrs      fuseops.InodeAttributes
+	tempDir    string
+	ChunkLimit int64
 
 	/////////////////////////
 	// Mutable state
@@ -94,6 +95,7 @@ func NewFileInode(
 	bucket gcs.Bucket,
 	syncer gcsx.Syncer,
 	tempDir string,
+	chunkLimit int64,
 	mtimeClock timeutil.Clock) (f *FileInode) {
 	// Set up the basic struct.
 	f = &FileInode{
@@ -104,6 +106,7 @@ func NewFileInode(
 		name:       o.Name,
 		attrs:      attrs,
 		tempDir:    tempDir,
+		ChunkLimit: chunkLimit,
 		src:        *o,
 	}
 
