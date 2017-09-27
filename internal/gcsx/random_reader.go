@@ -17,7 +17,7 @@ package gcsx
 import (
 	"fmt"
 	"io"
-	"math"
+//	"math"
 
 	"github.com/jacobsa/gcloud/gcs"
 	"golang.org/x/net/context"
@@ -258,7 +258,10 @@ func (rr *randomReader) startRead(
 	// probably worth it to just request the entire rest of the object, and let
 	// them sip from the fire house with each call to ReadAt.
 	if start == rr.limit {
-		actualSize = math.MaxInt64
+		// limit to 256k at a time, not a firehose
+		if actualSize < 262144 {
+			actualSize = 262144
+		}
 	}
 
 	// Clip to the end of the object.
